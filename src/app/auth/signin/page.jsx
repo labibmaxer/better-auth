@@ -14,7 +14,7 @@ const SignInPage = () => {
         const {data , error} = await authClient.signIn.email({
             email: userData.email,
             password: userData.password,
-            callbackUrl: "http://localhost:3000/dashboard" // optional, redirect after sign in
+            callbackUrl: "/dashboard" // optional, redirect after sign in
         })
         console.log('sign in response', {data, error});
     }
