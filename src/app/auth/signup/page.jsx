@@ -1,12 +1,30 @@
 // import React from 'react';
 'use client';
+import { authClient } from "@/lib/auth-client";
 import {Check} from "@gravity-ui/icons";
 import {Button, Description, FieldError, Form, Input, Label, TextField} from "@heroui/react";
 const SignupPage = () => {
 
 // export function Basic() {
-  const onSubmit = (e) => {
-    // e.preventDefault();
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const userData = Object.fromEntries(formData.entries());
+    console.log('form submitted with: ', userData);
+    const {data , error} = await authClient.signUp.email({
+        name: userData.name,
+        email: userData.email,
+        password: userData.password,
+        callbackUrl: "http://localhost:3000/dashboard" // optional, redirect after sign up
+    })
+    console.log('sign up response', {data, error});
+    if(error) {
+        alert(`Sign up failed: ${error.message}`);
+    }
+    if(data) {
+        alert(`Sign up successful! Please check your email to verify your account.`);
+    }
+    
     // const formData = new FormData(e.currentTarget);
     // const data= {};
     // // Convert FormData to plain object
@@ -20,6 +38,20 @@ const SignupPage = () => {
         <div>
          <h2>please sign up</h2>
          <Form className="flex w-96 flex-col gap-4" onSubmit={onSubmit}>
+            <TextField
+            isRequired
+            name="name"
+            validate={(value) => {
+              if (value.length < 3) {
+                return "Name must be at least 3 characters";
+              }
+              return null;
+            }}
+          >
+            <Label>Name</Label>
+            <Input name="name" placeholder="John Doe" />
+            <FieldError />
+            </TextField>
       <TextField
         isRequired
         name="email"
@@ -32,7 +64,7 @@ const SignupPage = () => {
         }}
       >
         <Label>Email</Label>
-        <Input placeholder="john@example.com" />
+        <Input name="email" placeholder="john@example.com" />
         <FieldError />
       </TextField>
       <TextField
@@ -54,7 +86,7 @@ const SignupPage = () => {
         }}
       >
         <Label>Password</Label>
-        <Input placeholder="Enter your password" />
+        <Input name="password" placeholder="Enter your password" />
         <Description>Must be at least 8 characters with 1 uppercase and 1 number</Description>
         <FieldError />
       </TextField>
